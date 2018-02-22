@@ -21,7 +21,7 @@ void setup() {
   }
 }
 
-int teamColor = 0;
+int teamColor = 0; // 0: red, 1: blue, 2: green
 int index = 0;
 bool reverse = false;
 bool lastState = false;
@@ -30,8 +30,11 @@ void loop() {
   bool buttonState = digitalRead(BUTTON_PIN) == HIGH;
   
   if (buttonState == true && lastState == false) {
-    // Serial.write("on\n");
-    
+    Serial.write("on\n");
+    teamColor++;
+    if (teamColor > 2) {
+      teamColor = 0;
+    }
   }
   lastState = buttonState;
   Serial.write(buttonState ? "1\n" : "0\n");
@@ -45,7 +48,7 @@ void loop() {
     
   for (int i = -1; i < SNAKE_LENGTH + 1; i++) {
     if (index + i < NUM_LEDS) {
-      leds[index + i].setRGB(0, 255, 0);
+      leds[index + i].setRGB(teamColor == 2 ? 255 : 0, teamColor == 0 ? 255 : 0, teamColor == 1 ? 255 : 0);
       if (i == -1 || i == SNAKE_LENGTH) {
         leds[index + i].setRGB(0, 0, 0);
       }
