@@ -27,17 +27,26 @@ bool reverse = false;
 bool lastState = false;
 
 void loop() {
-  bool buttonState = digitalRead(BUTTON_PIN) == HIGH;
-  
-  if (buttonState == true && lastState == false) {
-    Serial.write("on\n");
-    teamColor++;
-    if (teamColor > 2) {
-      teamColor = 0;
+  if (digitalRead(BUTTON_PIN) == HIGH) {
+    bool quit = false;
+    for (int i = 0; i < 100; i++) {
+      if (digitalRead(BUTTON_PIN) == LOW) {
+        quit = true;
+      }
+      if (!quit) {
+      delay(10);
+      }
+    }
+
+    if (!quit) {
+      Serial.write("on\n");
+      teamColor++;
+      if (teamColor > 2) {
+        teamColor = 0;
+      }
     }
   }
-  lastState = buttonState;
-  Serial.write(buttonState ? "1\n" : "0\n");
+  // Serial.write(buttonState ? "1\n" : "0\n");
 
   
   char number[2];
