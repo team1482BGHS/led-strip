@@ -1,6 +1,6 @@
 #include "FastLED.h"
 
-#define NUM_LEDS 115
+#define NUM_LEDS 150
 #define DATA_PIN 8
 #define BUTTON_PIN 2
 
@@ -25,26 +25,22 @@ int teamColor = 0; // 0: red, 1: blue, 2: green
 int index = 0;
 bool reverse = false;
 bool lastState = false;
+int highFor = 0;
 
 void loop() {
   if (digitalRead(BUTTON_PIN) == HIGH) {
-    bool quit = false;
-    for (int i = 0; i < 100; i++) {
-      if (digitalRead(BUTTON_PIN) == LOW) {
-        quit = true;
-      }
-      if (!quit) {
-      delay(10);
-      }
-    }
+    highFor++;
 
-    if (!quit) {
+    if (highFor >= 1000 / SNAKE_SPEED) {
+      highFor = 0;
       Serial.write("on\n");
       teamColor++;
       if (teamColor > 2) {
         teamColor = 0;
       }
     }
+  } else {
+    highFor = 0;
   }
   // Serial.write(buttonState ? "1\n" : "0\n");
 
