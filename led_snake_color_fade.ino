@@ -63,10 +63,13 @@ void loop() {
     delay(1000 / SNAKE_SPEED);
     update_color();
 
+    Serial.print("(");
     Serial.print(current_color[0]);
+    Serial.print(", ");
     Serial.print(current_color[1]);
+    Serial.print(", ");
     Serial.print(current_color[2]);
-    Serial.print("\n");
+    Serial.print(")\n");
 
     for (int j = 0; j < SNAKE_LENGTH; j++) {
       leds[i + j] = CRGB::Black;
@@ -82,6 +85,14 @@ void loop() {
     FastLED.show();
     delay(1000 / SNAKE_SPEED);
     update_color();
+
+    Serial.print("(");
+    Serial.print(current_color[0]);
+    Serial.print(", ");
+    Serial.print(current_color[1]);
+    Serial.print(", ");
+    Serial.print(current_color[2]);
+    Serial.print(")\n");
 
     for (int j = 0; j < SNAKE_LENGTH; j++) {
       leds[i - j] = CRGB::Black;
