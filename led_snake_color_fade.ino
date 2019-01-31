@@ -3,10 +3,12 @@
 #define NUM_LEDS 88
 #define DATA_PIN 8
 
+// Length of snake
+#define SNAKE_LENGTH 20
+// LEDs per second
+#define SNAKE_SPEED 50
 // Resolution of color fade, usually a number around 50 is not discernable
-#define RESOLUTION 255.
-// Time, in seconds to fade to the next color
-#define FADE_TIME 20.
+#define RESOLUTION 200.
 
 CRGB leds[NUM_LEDS];
 
@@ -17,39 +19,72 @@ void setup() {
   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Black;
   }
-  FastLED.show();
 }
 
-int current[] = {0, 0, 0};
+int init_color[] = {0, 0, 0}, current_color[] = {0, 0, 0}, target_color[3], loop_iter = 0;
+double color_increment[3];
+void update_color() {
+  if (loop_iter <= 0 || loop_iter >= RESOLUTION) {
+    init_color[0] = target_color[0];
+    init_color[1] = target_color[1];
+    init_color[2] = target_color[2];
+    
+    current_color[0] = init_color[0];
+    current_color[1] = init_color[1];
+    current_color[2] = init_color[2];
+    
+    target_color[0] = rand() % 255;
+    target_color[1] = rand() % 255;
+    target_color[2] = rand() % 255;
+    
+    int difference[] = {target_color[0] - init_color[0], target_color[1] - init_color[1], target_color[2] - init_color[2]};
+    
+    color_increment[0] = difference[0] / RESOLUTION;
+    color_increment[1] = difference[1] / RESOLUTION;
+    color_increment[2] = difference[2] / RESOLUTION;
+    
+    loop_iter = 0;
+  }
+  
+  current_color[0] = init_color[0] + (int)(color_increment[0] * loop_iter);
+  current_color[1] = init_color[1] + (int)(color_increment[1] * loop_iter);
+  current_color[2] = init_color[2] + (int)(color_increment[2] * loop_iter);
+  
+  loop_iter++;
+}
 
 void loop() {
-  int target[] = {rand() % 255, rand() % 255, rand() % 255};
-  int difference[] = {target[0] - current[0], target[1] - current[1], target[2] - current[2]};
-  double increment[] = {difference[0]/RESOLUTION, difference[1]/RESOLUTION, difference[2]/RESOLUTION};
-
-  Serial.print(target[0]);
-  Serial.print(",");
-  Serial.print(target[1]);
-  Serial.print(",");
-  Serial.print(target[2]);
-  Serial.print(" (");
-  Serial.print(increment[0]);
-  Serial.print(",");
-  Serial.print(increment[1]);
-  Serial.print(",");
-  Serial.print(increment[2]);
-  Serial.print(")\n");
-  
-  for (int i = 0; i < RESOLUTION; i++) {
-    for (int led = 0; led < NUM_LEDS; led++) {
-      leds[led].setRGB(current[0] + (increment[0] * i), current[1] + (increment[1] * i), current[2] + (increment[2] * i));
+  for (int i = 0; i < NUM_LEDS - SNAKE_LENGTH + 1; i++) {
+    for (int j = 0; j < SNAKE_LENGTH; j++) {
+      leds[i + j].setRGB(current_color[0], current_color[1], current_color[2]);
     }
-    
+
     FastLED.show();
-    delay(FADE_TIME * 1000 / RESOLUTION);
+    delay(1000 / SNAKE_SPEED);
+    update_color();
+
+    Serial.print(current_color[0]);
+    Serial.print(current_color[1]);
+    Serial.print(current_color[2]);
+    Serial.print("\n");
+
+    for (int j = 0; j < SNAKE_LENGTH; j++) {
+      leds[i + j] = CRGB::Black;
+    }
   }
 
-  current[0] = target[0];
-  current[1] = target[1];
-  current[2] = target[2];
+
+  for (int i = NUM_LEDS - 1; i > SNAKE_LENGTH; i--) {
+    for (int j = 0; j < SNAKE_LENGTH; j++) {
+      leds[i - j].setRGB(current_color[0], current_color[1], current_color[2]);
+    }
+
+    FastLED.show();
+    delay(1000 / SNAKE_SPEED);
+    update_color();
+
+    for (int j = 0; j < SNAKE_LENGTH; j++) {
+      leds[i - j] = CRGB::Black;
+    }
+  }
 }
